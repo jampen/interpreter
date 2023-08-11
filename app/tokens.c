@@ -1,9 +1,12 @@
 #include "tokens.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include <stdio.h>
 #include <ctype.h>
+
+// definition of global variable in tokens_h
+TokenList* g_current_token_list = NULL;
 
 enum CharacterClassification {
     CHCLASS_UNKNOWN,
@@ -141,4 +144,38 @@ void tokenize_file(
     }
 
     fclose(file);
+}
+
+void target_token_list(TokenList* list) {
+    g_current_token_list = list;
+}
+
+TokenList create_token_list() {
+    TokenList list;
+    list.token_count = 0;
+    list.tokens_capacity = 10;
+    list.tokens = malloc(sizeof(Token) * 10);
+    return list;
+}
+
+void delete_token_list(TokenList list) {
+    free(list.tokens);
+}
+
+void push_token(const Token token) {
+    // When the list is full, we will extend the capacity
+    if (g_current_token_list->token_count >= g_current_token_list->tokens_capacity) {
+        g_current_token_list->token_count *= 2;
+        Token* old_tokens = g_current_token_list->tokens;
+        g_current_token_list->tokens =
+            realloc(
+                g_current_token_list->tokens,
+                g_current_token_list->token_count * sizeof(Token)
+            );
+        free(old_tokens);
+    }
+
+    // Insert the token
+    g_current_token_list->tokens[g_current_token_list->token_count] = token;
+    ++g_current_token_list->token_count;
 }

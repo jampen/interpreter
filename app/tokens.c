@@ -18,7 +18,7 @@ enum CharacterClassification classify_character(FILE* file) {
     int character = fgetc(file);
     ungetc(character, file);
 
-    if (isalpha(character)) {
+    if (isalpha(character) || character == '_') {
         return CHCLASS_ALPHANUMERIC;
     }
 
